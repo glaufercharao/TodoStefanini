@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: TodoStefanini
+  datasource:
+    url: ${DS_URL:jdbc:sqlserver://localhost:1433;databaseName=work_todo;integratedSecurity=true;}
+    username: ${DS_USERNAME}
+    password: ${DS_PASSWORD}
