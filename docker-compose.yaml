@@ -1,0 +1,34 @@
+services:
+  mssql:
+    container_name: mssqlserver
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "1433:1433"
+    environment:
+      MSSQL_SA_PASSWORD: "Sasa12345678@04321"
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer"
+    restart: always
+    networks:
+      - stefanini
+  todo_container:
+    container_name: todo
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      DS_USERNAME: sa
+      DS_PASSWORD: Sasa12345678@04321
+      DS_URL: jdbc:sqlserver://mssql:1433;encrypt=false;user=${DS_USERNAME};password=${DS_PASSWORD}}
+      PORT: 8001
+    networks:
+      - stefanini
+    depends_on:
+      - mssql
+    restart: always
+
+networks:
+  stefanini:
+    name: stefanini

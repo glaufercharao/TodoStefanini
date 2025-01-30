@@ -20,6 +20,7 @@ public class TodoEntity {
   private Status status;
   @CreatedDate
   private LocalDate atCreated;
+  private LocalDate atFinished;
 
   public Long getId() {
     return id;
@@ -59,5 +60,13 @@ public class TodoEntity {
 
   public void setAtCreated(LocalDate atCreated) {
     this.atCreated = atCreated;
+  }
+
+  public LocalDate getAtFinished() {
+    return atFinished;
+  }
+
+  public void setAtFinished(LocalDate atFinished) {
+    this.atFinished = atFinished;
   }
 }

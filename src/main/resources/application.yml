@@ -2,7 +2,7 @@ spring:
   application:
     name: TodoStefanini
   datasource:
-    url: ${DS_URL:jdbc:sqlserver://localhost:1433;databaseName=work_todo_db;encrypt=true;trustServerCertificate=true;}
+    url: ${DS_URL}
     username: ${DS_USERNAME}
     password: ${DS_PASSWORD}
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
@@ -18,4 +18,5 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.SQLServerDialect
-
+server:
+  port: ${PORT:8080}

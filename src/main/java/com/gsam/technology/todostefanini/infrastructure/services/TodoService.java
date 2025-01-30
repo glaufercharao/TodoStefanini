@@ -1,14 +1,21 @@
 package com.gsam.technology.todostefanini.infrastructure.services;
 
 import com.gsam.technology.todostefanini.application.core.domain.Todo;
+import com.gsam.technology.todostefanini.application.core.domain.enums.Status;
 import com.gsam.technology.todostefanini.application.port.out.TodoPortOut;
 import com.gsam.technology.todostefanini.infrastructure.entities.TodoEntity;
 import com.gsam.technology.todostefanini.infrastructure.repositories.TodoRepository;
+import com.gsam.technology.todostefanini.infrastructure.services.exceptions.DatabaseException;
+import com.gsam.technology.todostefanini.infrastructure.services.exceptions.ResourceNotFoundException;
 import com.gsam.technology.todostefanini.mappers.TodoMapper;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -28,7 +35,7 @@ public class TodoService implements TodoPortOut {
   public Todo getOne(Long id) {
     Optional<TodoEntity> todo = repository.findById(id);
     if(!todo.isPresent()){
-      throw new RuntimeException("Task not found.");
+      throw new ResourceNotFoundException("Task not found");
     }
     return mapperEntity.toTodo(todo.get());
   }
@@ -37,6 +44,7 @@ public class TodoService implements TodoPortOut {
   @Transactional
   public void pesist(Todo todo) {
     var todoEntity = mapperEntity.toTodoEntity(todo);
+    todoEntity.setStatus(Status.PENDING);
     repository.save(todoEntity);
   }
 
@@ -45,27 +53,36 @@ public class TodoService implements TodoPortOut {
   public Todo update(Todo todo) {
     var todoEntity = repository.findById(todo.getId());
     if(!todoEntity.isPresent()){
-      throw new RuntimeException("Task not found.");
+      throw new ResourceNotFoundException("Task not found "+ todo.getId());
     }
-    var todoUpdate = mapperEntity.toTodoEntity(todo);
-    repository.save(todoUpdate);
-    return todo;
+    if(todo.getStatus().equals(Status.DONE) && todoEntity.get().getStatus() != Status.DONE){
+      repository.modifyingQueryTodoFinish(todo.getId(), todo.getTitle(),
+              todo.getDescription(),todo.getStatus(), LocalDate.now());
+    } else {
+      repository.modifyingQueryUpdateTodo(todo.getId(), todo.getTitle(),
+              todo.getDescription(),todo.getStatus());
+    }
+    return mapperEntity.toTodo(todoEntity.get());
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<Todo> getAll() {
-    List<TodoEntity> todoList = repository.findAll();
-    return todoList.stream().map(mapperEntity::toTodo).collect(Collectors.toList());
+  public Page<Todo> getAll(Pageable pageable) {
+    Page<TodoEntity> todoList = repository.findAll(pageable);
+    return todoList.map(mapperEntity::toTodo);
   }
 
   @Override
   @Transactional
   public void delete(Long id) {
-    Optional<TodoEntity> todo = repository.findById(id);
-    if(!todo.isPresent()){
-      throw new RuntimeException("Task not found.");
+    try {
+      Optional<TodoEntity> todo = repository.findById(id);
+      if(!todo.isPresent()) {
+        throw new ResourceNotFoundException("Id "+ id +", not found!");
+      }
+      repository.deleteById(id);
+    }catch (DataIntegrityViolationException e){
+      throw  new DatabaseException("Integrity violation");
     }
-    repository.deleteById(id);
   }
 }
