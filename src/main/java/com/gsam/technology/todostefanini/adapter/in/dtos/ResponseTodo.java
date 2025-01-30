@@ -1,12 +1,14 @@
 package com.gsam.technology.todostefanini.adapter.in.dtos;
 
 import com.gsam.technology.todostefanini.application.core.domain.enums.Status;
-import jakarta.validation.constraints.NotBlank;
 
-public record TodoDTO(
-        @NotBlank
+import java.time.LocalDate;
+
+public record ResponseTodo(
+         Long id,
          String title,
-        @NotBlank
          String description,
-         Status status) {
+         Status status,
+         LocalDate atCreated
+) {
 }

@@ -3,6 +3,8 @@ package com.gsam.technology.todostefanini.application.usecase;
 import com.gsam.technology.todostefanini.application.core.domain.Todo;
 import com.gsam.technology.todostefanini.application.port.in.CreateTodoPortIn;
 import com.gsam.technology.todostefanini.application.port.out.TodoPortOut;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -30,8 +32,8 @@ public class CreateTodo implements CreateTodoPortIn {
   }
 
   @Override
-  public List<Todo> getAllTodo() {
-    return todoPortOut.getAll();
+  public Page<Todo> getAllTodo(Pageable pageable) {
+    return todoPortOut.getAll(pageable);
   }
 
   @Override

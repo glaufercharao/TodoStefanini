@@ -1,13 +1,14 @@
 package com.gsam.technology.todostefanini.application.port.in;
 
 import com.gsam.technology.todostefanini.application.core.domain.Todo;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 
 public interface CreateTodoPortIn {
   void saveTodo(Todo todo);
   Todo getTodo(Long id);
   Todo updateTodo(Todo todo);
-  List<Todo> getAllTodo();
+  Page<Todo> getAllTodo(Pageable pageable);
   void deleteTodoById(Long id);
 }
